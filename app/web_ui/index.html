@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – Edge Attendance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --border: rgba(148, 163, 184, 0.1);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .nav-brand h2 {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .role-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-admin { background: rgba(139, 92, 246, 0.2); color: #c4b5fd; }
+        .role-employee { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* ── Main Layout ── */
+        .main-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 28px 32px;
+        }
+
+        /* ── Stat Cards ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .stat-blue .stat-value { color: var(--accent-blue); }
+        .stat-green .stat-value { color: var(--accent-green); }
+        .stat-orange .stat-value { color: var(--accent-orange); }
+        .stat-red .stat-value { color: var(--accent-red); }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* ── Filter Bar ── */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-group label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-input {
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+            min-width: 150px;
+        }
+
+        .filter-input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        select.filter-input {
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), #6366f1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(148, 163, 184, 0.15);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #16a34a);
+            color: white;
+        }
+
+        /* ── Tables ── */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(15, 23, 42, 0.4);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+            color: var(--text-secondary);
+        }
+
+        tr:hover td {
+            background: rgba(148, 163, 184, 0.03);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-checkin {
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+        }
+
+        .badge-checkout {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+        }
+
+        .confidence-bar {
+            display: inline-block;
+            width: 50px;
+            height: 6px;
+            background: rgba(148, 163, 184, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--accent-green);
+        }
+
+        /* ── Form ── */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .form-input {
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* ── Empty State ── */
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .navbar { padding: 12px 16px; }
+            .main-content { padding: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .filter-bar { flex-direction: column; }
+            .filter-input { min-width: auto; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ── Navbar ── -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="nav-brand-icon">👤</div>
+            <h2>Edge Attendance</h2>
+        </div>
+        <div class="nav-right">
+            <div class="nav-user">
+                <span>{{ user.username }}</span>
+                <span class="role-badge {% if user.role == 'admin' %}role-admin{% else %}role-employee{% endif %}">
+                    {{ user.role }}
+                </span>
+            </div>
+            <a href="/logout" class="btn-logout">Đăng xuất</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+
+        <!-- ── Summary Stats (Admin only) ── -->
+        {% if user.role == 'admin' %}
+        <div class="stats-grid">
+            <div class="stat-card stat-blue">
+                <div class="stat-label">Tổng nhân viên</div>
+                <div class="stat-value">{{ summary.total_employees }}</div>
+            </div>
+            <div class="stat-card stat-green">
+                <div class="stat-label">Đã check-in hôm nay</div>
+                <div class="stat-value">{{ summary.checked_in }}</div>
+            </div>
+            <div class="stat-card stat-orange">
+                <div class="stat-label">Đã check-out hôm nay</div>
+                <div class="stat-value">{{ summary.checked_out }}</div>
+            </div>
+            <div class="stat-card stat-red">
+                <div class="stat-label">Chưa check-in</div>
+                <div class="stat-value">{{ summary.not_checked_in }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ── Filter Bar ── -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">🔍 Bộ lọc</h3>
+            </div>
+            <form method="get" action="/">
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Từ ngày</label>
+                        <input type="date" name="date_from" class="filter-input" value="{{ filters.date_from }}">
+                    </div>
+                    <div class="filter-group">
+                        <label>Đến ngày</label>
+                        <input type="date" name="date_to" class="filter-input" value="{{ filters.date_to }}">
+                    </div>
+                    {% if user.role == 'admin' %}
+                    <div class="filter-group">
+                        <label>Phòng ban</label>
+                        <select name="department" class="filter-input">
+                            <option value="">-- Tất cả --</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept }}" {% if filters.department == dept %}selected{% endif %}>{{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary">Lọc</button>
+                    <a href="/" class="btn btn-secondary">Xóa bộ lọc</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- ── Add Employee (Admin only) ── -->
+        {% if user.role == 'admin' %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">➕ Thêm nhân viên</h3>
+            </div>
+            <form method="post" action="/employees">
+                <div class="form-row">
+                    <input class="form-input" name="employee_code" placeholder="Mã nhân viên" required>
+                    <input class="form-input" name="full_name" placeholder="Họ tên" required>
+                    <input class="form-input" name="department" placeholder="Phòng ban">
+                    <button type="submit" class="btn btn-success">Thêm</button>
+                </div>
+            </form>
+            <p style="margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+                Lưu ý: Ghi danh khuôn mặt thực hiện tại kiosk (chọn chế độ "Ghi danh").
+            </p>
+        </div>
+
+        <!-- ── Employee List ── -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">👥 Danh sách nhân viên</h3>
+            </div>
+            <div class="table-container">
+                {% if employees %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Mã NV</th>
+                            <th>Họ tên</th>
+                            <th>Phòng ban</th>
+                            <th>Ngày tạo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in employees %}
+                        <tr>
+                            <td>{{ e.id }}</td>
+                            <td style="color: var(--accent-blue); font-weight: 600;">{{ e.employee_code }}</td>
+                            <td style="color: var(--text-primary);">{{ e.full_name }}</td>
+                            <td>{{ e.department }}</td>
+                            <td>{{ e.created_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <p>Chưa có nhân viên nào</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ── Attendance Logs ── -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">📋 Lịch sử điểm danh</h3>
+                {% if user.role == 'admin' %}
+                <a href="/export/attendance.csv{% if filters.date_from %}?date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.department %}&department={{ filters.department }}{% endif %}" class="btn btn-secondary">
+                    📥 Xuất CSV
+                </a>
+                {% endif %}
+            </div>
+            <div class="table-container">
+                {% if logs %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Mã NV</th>
+                            <th>Họ tên</th>
+                            <th>Phòng ban</th>
+                            <th>Thời gian</th>
+                            <th>Loại</th>
+                            <th>Độ tin cậy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.id }}</td>
+                            <td style="color: var(--accent-blue); font-weight: 600;">{{ log.employee_code }}</td>
+                            <td style="color: var(--text-primary);">{{ log.full_name }}</td>
+                            <td>{{ log.department }}</td>
+                            <td>{{ log.check_time }}</td>
+                            <td>
+                                {% if log.check_type == 'CHECK_IN' %}
+                                <span class="badge badge-checkin">CHECK IN</span>
+                                {% else %}
+                                <span class="badge badge-checkout">CHECK OUT</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.confidence %}
+                                <span class="confidence-bar">
+                                    <span class="confidence-fill" style="width: {{ (log.confidence * 100)|int }}%;"></span>
+                                </span>
+                                {{ "%.3f"|format(log.confidence) }}
+                                {% else %}
+                                –
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <p>Chưa có dữ liệu điểm danh</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

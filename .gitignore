@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Database
+attendance.db
+
+# Models (download via download_models.py)
+models/*.onnx
+
+# Captured face images
+captures/
+
+# OS
+.DS_Store
+Thumbs.db
