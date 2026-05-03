@@ -32,6 +32,8 @@ RECOGNITION_COSINE_THRESHOLD = 0.363
 STABLE_FACE_SECONDS = 1.5
 # Cooldown (seconds) between two scans of the SAME person
 DUPLICATE_COOLDOWN_MINUTES = 5
+# Interval (seconds) to purge expired entries from in-memory cooldown cache
+CACHE_CLEANUP_INTERVAL = 60
 # Camera resolution
 CAMERA_WIDTH = 640
 CAMERA_HEIGHT = 480
